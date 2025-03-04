@@ -1,0 +1,80 @@
+# Documentação do Projeto de Feedback para Alunos e Professores
+
+## Visão Geral
+
+Este projeto é uma aplicação web desenvolvida em **Python** utilizando **Streamlit** e **SQLite**, permitindo que alunos enviem feedbacks para professores e que os professores gerenciem suas informações.
+
+## Tecnologias Utilizadas
+
+- **Python 3**
+- **Streamlit** (para a interface web)
+- **SQLite** (banco de dados leve)
+- **bcrypt** (para hashing de senhas)
+
+## Funcionalidades
+
+- Cadastro de alunos e professores
+- Login seguro com hash de senhas
+- Professores podem visualizar feedbacks recebidos
+- Alunos podem enviar feedbacks para professores
+- Interface intuitiva e simples usando Streamlit
+
+## Instalação e Configuração
+
+### **1. Clonar o Repositório**
+
+git clone <URL_DO_REPOSITORIO>
+cd <NOME_DO_PROJETO>
+
+### **2. Criar um Ambiente Virtual (Opcional, mas Recomendado)**
+
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate  # Windows
+
+### **3. Instalar Dependências**
+
+pip install -r requirements.txt
+
+### **4. Executar o Aplicativo**
+
+streamlit run app.py
+
+## Estrutura do Projeto
+
+```
+/
+├── app.py                 # Arquivo principal da aplicação
+├── database.py            # Módulo para manipulação do banco de dados
+├── models.py              # Definição das funções de manipulação dos dados
+├── requirements.txt       # Lista de dependências do projeto
+├── README.md              # Documentação do projeto
+└── db.sqlite3             # Banco de dados SQLite
+```
+
+## Banco de Dados
+
+### **Tabelas**
+
+- `usuarios` (id, nome, email, senha, tipo)
+- `feedbacks` (id, aluno\_id, professor\_id, mensagem, data)
+
+## Melhorias Futuras
+
+- Implementar um sistema de notas e avaliação por estrelas
+- Melhorar a interface com mais elementos visuais
+- Criar um painel administrativo para gestão de usuários
+
+## Contribuição
+
+Caso queira contribuir, faça um fork do repositório, crie um branch com suas melhorias e envie um pull request.
+
+## Contato
+
+Dúvidas ou sugestões? Entre em contato com o grupo de desenvolvimento!
+
+
+git config --global user.name "Lenildo Lima"
+git config --global user.email "lenildolimasilva25@gmail.com"
+
+
