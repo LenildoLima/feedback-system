@@ -28,7 +28,7 @@ def criar_banco():
         disciplinas TEXT
     )''')
 
-    # Criar tabela de feedbacks
+    # Criar tabela de feedbacks com a adição do campo "data"
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS feedbacks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,6 +41,7 @@ def criar_banco():
         motivacao INTEGER NOT NULL,
         desafio TEXT,
         comentarios TEXT,
+        data DATE NOT NULL,  -- Adiciona o campo data
         FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
     )''')
 
@@ -50,8 +51,12 @@ def criar_banco():
     conn.close()
 
 def buscar_disciplinas_por_professor(nome_professor):
+    # Caminho relativo para o banco de dados
+    banco_dir = os.path.join(os.getcwd(), 'database')
+    banco_path = os.path.join(banco_dir, 'feedback.db')
+
     # Conectar ao banco de dados
-    conn = sqlite3.connect(r"C:/Curso Python Estacio/feedback_alunos/database/feedback.db")
+    conn = sqlite3.connect(banco_path)
     cursor = conn.cursor()
 
     # Buscar as disciplinas associadas ao professor
@@ -70,6 +75,3 @@ def buscar_disciplinas_por_professor(nome_professor):
 # Função chamada para criar o banco
 if __name__ == "__main__":
     criar_banco()
-
-
-
