@@ -2,13 +2,18 @@ import sqlite3
 import os
 
 def criar_banco():
+    # Caminho relativo para a pasta onde o banco de dados estará
+    banco_dir = os.path.join(os.getcwd(), 'database')  # Obtém o diretório atual e adiciona 'database'
+    
     # Verifica se o diretório existe, se não, cria
-    banco_path = r"C:/Curso Python Estacio/feedback_alunos/database"
-    if not os.path.exists(banco_path):
-        os.makedirs(banco_path)  # Cria o diretório se não existir
+    if not os.path.exists(banco_dir):
+        os.makedirs(banco_dir)  # Cria o diretório se não existir
+
+    # Caminho relativo para o arquivo do banco de dados
+    banco_path = os.path.join(banco_dir, 'feedback.db')
 
     # Conectar ao banco de dados (ou criar se não existir)
-    conn = sqlite3.connect(r"C:/Curso Python Estacio/feedback_alunos/database/feedback.db")
+    conn = sqlite3.connect(banco_path)
     cursor = conn.cursor()
 
     # Criar tabela de usuários
