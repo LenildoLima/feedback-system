@@ -10,7 +10,7 @@ DB_PATH = os.path.join(os.getcwd(), 'database', 'feedback.db')
 
 # Função para conectar ao banco de dados
 def conectar_bd():
-    return sqlite3.connect(DB_PATH)
+    return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 # Função para cadastrar usuário
 def cadastrar_usuario(nome, email, senha, tipo_usuario, ano_turma, disciplinas):
@@ -103,4 +103,5 @@ if __name__ == "__main__":
             tela_menu()
     else:
         tela_login()
+
 
