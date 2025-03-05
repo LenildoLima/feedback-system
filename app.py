@@ -2,7 +2,6 @@ import streamlit as st
 import sqlite3
 import bcrypt
 import os
-from feedback import tela_feedback  # Importando a tela de feedback
 from professor import tela_professor  # Importando a tela do professor
 
 # Caminho relativo do banco de dados
@@ -77,9 +76,7 @@ def tela_menu():
     st.sidebar.title("Menu Principal")
     tipo_usuario = st.session_state.get("tipo_usuario", "")
     
-    if tipo_usuario == "Aluno":
-        st.sidebar.button("Feedback", on_click=lambda: st.session_state.update({"page": "feedback"}))
-    elif tipo_usuario == "Professor":
+    if tipo_usuario == "Professor":
         st.sidebar.button("Meus Feedbacks", on_click=lambda: st.session_state.update({"page": "professor"}))
     
     if st.sidebar.button("Sair"):
@@ -95,10 +92,8 @@ if __name__ == "__main__":
         st.session_state["page"] = "login"
 
     if st.session_state["logged_in"]:
-        if st.session_state["page"] == "feedback" and st.session_state["tipo_usuario"] == "Aluno":
-            tela_feedback()
-        elif st.session_state["page"] == "professor" and st.session_state["tipo_usuario"] == "Professor":
-            tela_professor()  # Chamando a tela de feedback para o professor
+        if st.session_state["page"] == "professor" and st.session_state["tipo_usuario"] == "Professor":
+            tela_professor()
         else:
             tela_menu()
     else:
