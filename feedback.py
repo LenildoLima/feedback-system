@@ -1,8 +1,11 @@
 import streamlit as st
 import sqlite3
 
+# Caminho relativo do banco de dados
+DB_PATH = os.path.join(os.path.dirname(__file__), "database", "feedback.db")
+
 def conectar_bd():
-    return sqlite3.connect(r"C:/Curso Python Estacio/feedback_alunos/database/feedback.db")
+    return sqlite3.connect(DB_PATH)
 
 def buscar_disciplinas_por_professor(nome_professor):
     conn = conectar_bd()
