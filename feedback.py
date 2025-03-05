@@ -1,8 +1,9 @@
 import streamlit as st
 import sqlite3
+import os
 
 # Caminho relativo do banco de dados
-DB_PATH = os.path.join(os.path.dirname(__file__), "database", "feedback.db")
+DB_PATH = os.path.join(os.getcwd(), 'database', 'feedback.db')
 
 def conectar_bd():
     return sqlite3.connect(DB_PATH)
@@ -82,3 +83,4 @@ def tela_feedback():
         st.session_state.pop("nome_usuario", None)
         st.session_state["page"] = "login"
         st.rerun()  # Atualiza a página e volta para o login
+
