@@ -98,7 +98,7 @@ if __name__ == "__main__":
         if st.session_state["page"] == "feedback" and st.session_state["tipo_usuario"] == "Aluno":
             tela_feedback()
         elif st.session_state["page"] == "professor" and st.session_state["tipo_usuario"] == "Professor":
-            tela_professor()
+            tela_professor()  # Chamando a tela de feedback para o professor
         else:
             tela_menu()
     else:
