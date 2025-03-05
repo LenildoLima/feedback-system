@@ -1,6 +1,30 @@
 import sqlite3
 import os
 
+# Função para buscar disciplinas associadas ao professor
+def buscar_disciplinas_por_professor(nome_professor):
+    # Caminho relativo para o banco de dados
+    banco_dir = os.path.join(os.getcwd(), 'database')
+    banco_path = os.path.join(banco_dir, 'feedback.db')
+
+    # Conectar ao banco de dados
+    conn = sqlite3.connect(banco_path)
+    cursor = conn.cursor()
+
+    # Buscar as disciplinas associadas ao professor
+    cursor.execute("SELECT disciplinas FROM usuarios WHERE tipo_usuario = 'Professor' AND nome = ?", (nome_professor,))
+    resultado = cursor.fetchone()
+    
+    conn.close()
+
+    # Se o professor tiver disciplinas cadastradas
+    if resultado:
+        # Separamos as disciplinas em uma lista
+        disciplinas = resultado[0].split(",")  # Aqui consideramos que as disciplinas são separadas por vírgula
+        return disciplinas
+    return None
+
+# Função para criar o banco de dados e as tabelas
 def criar_banco():
     # Caminho relativo para a pasta onde o banco de dados estará
     banco_dir = os.path.join(os.getcwd(), 'database')  # Obtém o diretório atual e adiciona 'database'
@@ -28,7 +52,7 @@ def criar_banco():
         disciplinas TEXT
     )''')
 
-    # Criar tabela de feedbacks com a adição do campo "data"
+    # Criar tabela de feedbacks
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS feedbacks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +65,6 @@ def criar_banco():
         motivacao INTEGER NOT NULL,
         desafio TEXT,
         comentarios TEXT,
-        data DATE NOT NULL,  -- Adiciona o campo data
         FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
     )''')
 
@@ -49,28 +72,6 @@ def criar_banco():
     print("Banco de dados e tabelas criadas com sucesso")
     conn.commit()
     conn.close()
-
-def buscar_disciplinas_por_professor(nome_professor):
-    # Caminho relativo para o banco de dados
-    banco_dir = os.path.join(os.getcwd(), 'database')
-    banco_path = os.path.join(banco_dir, 'feedback.db')
-
-    # Conectar ao banco de dados
-    conn = sqlite3.connect(banco_path)
-    cursor = conn.cursor()
-
-    # Buscar as disciplinas associadas ao professor
-    cursor.execute("SELECT disciplinas FROM usuarios WHERE tipo_usuario = 'Professor' AND nome = ?", (nome_professor,))
-    resultado = cursor.fetchone()
-    
-    conn.close()
-
-    # Se o professor tiver disciplinas cadastradas
-    if resultado:
-        # Separamos as disciplinas em uma lista
-        disciplinas = resultado[0].split(",")  # Aqui consideramos que as disciplinas são separadas por vírgula
-        return disciplinas
-    return None
 
 # Função chamada para criar o banco
 if __name__ == "__main__":
