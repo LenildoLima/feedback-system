@@ -3,8 +3,14 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Atualizando o caminho do banco de dados de forma dinâmica
 def conectar_bd():
-    return sqlite3.connect(r"C:/Curso Python Estacio/feedback_alunos/database/feedback.db")
+    db_path = os.path.join(os.path.dirname(__file__), 'database', 'feedback.db')
+    return sqlite3.connect(db_path)
+
+def obter_feedbacks_do_professor(nome_professor):
+    conn = conectar_bd()
+    cursor = conn.cursor()
 
 def obter_feedbacks_do_professor(nome_professor):
     conn = conectar_bd()
