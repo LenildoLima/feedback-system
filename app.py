@@ -4,9 +4,12 @@ import bcrypt
 from feedback import tela_feedback  # Importando a tela de feedback
 from professor import tela_professor  # Importando a tela do professor
 
+# Caminho relativo do banco de dados
+DB_PATH = os.path.join(os.path.dirname(__file__), "database", "feedback.db")
+
 # Função para conectar ao banco de dados
 def conectar_bd():
-    return sqlite3.connect(r"C:/Curso Python Estacio/feedback_alunos/database/feedback.db")
+    return sqlite3.connect(DB_PATH)
 
 # Função para cadastrar usuário
 def cadastrar_usuario(nome, email, senha, tipo_usuario, ano_turma, disciplinas):
