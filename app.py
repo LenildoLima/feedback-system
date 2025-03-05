@@ -1,106 +1,88 @@
 import streamlit as st
 import sqlite3
-import bcrypt
-from feedback import tela_feedback  # Importando a tela de feedback
-from professor import tela_professor  # Importando a tela do professor
+import os
 
 # Caminho relativo do banco de dados
-DB_PATH = os.path.join(os.path.dirname(__file__), "database", "feedback.db")
+DB_PATH = os.path.join(os.getcwd(), 'database', 'feedback.db')
 
-# Função para conectar ao banco de dados
 def conectar_bd():
     return sqlite3.connect(DB_PATH)
 
-# Função para cadastrar usuário
-def cadastrar_usuario(nome, email, senha, tipo_usuario, ano_turma, disciplinas):
+def buscar_disciplinas_por_professor(nome_professor):
     conn = conectar_bd()
     cursor = conn.cursor()
-    try:
-        senha_hash = bcrypt.hashpw(senha.encode(), bcrypt.gensalt())
-        cursor.execute("INSERT INTO usuarios (nome, email, senha, tipo_usuario, ano_turma, disciplinas) VALUES (?, ?, ?, ?, ?, ?)",
-                       (nome, email, senha_hash, tipo_usuario, ano_turma, disciplinas))
-        conn.commit()
-        st.success("Usuário cadastrado com sucesso!")
-    except sqlite3.IntegrityError:
-        st.error("Erro: Email já cadastrado!")
-    finally:
+    cursor.execute("SELECT disciplinas FROM usuarios WHERE tipo_usuario = 'Professor' AND nome = ?", (nome_professor,))
+    resultado = cursor.fetchone()
+    conn.close()
+
+    if resultado:
+        disciplinas = resultado[0].split(",")  # Separa as disciplinas por vírgula
+        return disciplinas
+    return []
+
+def enviar_feedback(usuario_id, disciplina, professor, clareza, material_apoio, participacao, motivacao, desafio, comentarios):
+    conn = conectar_bd()
+    cursor = conn.cursor()
+    cursor.execute(""" 
+        INSERT INTO feedbacks (usuario_id, disciplina, professor, clareza, material_apoio, participacao, motivacao, desafio, comentarios) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (usuario_id, disciplina, professor, clareza, material_apoio, participacao, motivacao, desafio, comentarios))
+    conn.commit()
+    conn.close()
+    st.success("✅ Feedback enviado com sucesso!")
+
+def tela_feedback():
+    st.title(f"📌 Feedback de Aula - Bem-vindo, {st.session_state.get('nome_usuario', 'Usuário')}")
+
+    if "usuario_id" not in st.session_state:
+        st.error("❌ Erro: Usuário não autenticado.")
+        return
+
+    usuario_id = st.session_state["usuario_id"]
+
+    # Se o usuário for aluno, exibir a lista de professores
+    if st.session_state.get("tipo_usuario") == "Aluno":
+        conn = conectar_bd()
+        cursor = conn.cursor()
+
+        # Buscar todos os professores cadastrados
+        cursor.execute("SELECT nome FROM usuarios WHERE tipo_usuario = 'Professor'")
+        professores = [p[0] for p in cursor.fetchall()]
         conn.close()
 
-# Função para verificar login
-def verificar_login(email, senha):
-    conn = conectar_bd()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM usuarios WHERE email = ?", (email,))
-    usuario = cursor.fetchone()
-    conn.close()
-    
-    if usuario and bcrypt.checkpw(senha.encode(), usuario[3]):
-        return usuario
-    return None
-
-# Gerenciando a navegação entre páginas
-def tela_login():
-    st.title("Sistema de Feedback - Login & Cadastro")
-    
-    menu = st.sidebar.selectbox("Menu", ["Login", "Cadastro"])
-    
-    if menu == "Cadastro":
-        st.subheader("Cadastro de Usuário")
-        nome = st.text_input("Nome")
-        email = st.text_input("Email")
-        senha = st.text_input("Senha", type="password")
-        tipo_usuario = st.selectbox("Tipo de Usuário", ["Aluno", "Professor", "Administrador"])
-        ano_turma = st.text_input("Ano/Turma (se aluno)")
-        disciplinas = st.text_input("Disciplinas (se professor)")
-        if st.button("Cadastrar"):
-            cadastrar_usuario(nome, email, senha, tipo_usuario, ano_turma, disciplinas)
-    
-    elif menu == "Login":
-        st.subheader("Login de Usuário")
-        email = st.text_input("Email")
-        senha = st.text_input("Senha", type="password")
-        if st.button("Entrar"):
-            usuario = verificar_login(email, senha)
-            if usuario:
-                st.session_state["usuario_id"] = usuario[0]
-                st.session_state["nome_usuario"] = usuario[1]
-                st.session_state["tipo_usuario"] = usuario[4]  # Salva o tipo de usuário
-                st.session_state["logged_in"] = True
-                st.session_state["page"] = "menu"  # Define a página inicial após login
-                st.rerun()
+        if professores:
+            professor = st.selectbox("👨‍🏫 Escolha um professor", professores)
+            disciplinas = buscar_disciplinas_por_professor(professor)
+            if disciplinas:
+                disciplina = st.selectbox("📚 Disciplina", disciplinas)
             else:
-                st.error("Email ou senha incorretos!")
-
-# Tela principal após login
-def tela_menu():
-    st.sidebar.title("Menu Principal")
-    tipo_usuario = st.session_state.get("tipo_usuario", "")
-    
-    if tipo_usuario == "Aluno":
-        st.sidebar.button("Feedback", on_click=lambda: st.session_state.update({"page": "feedback"}))
-    elif tipo_usuario == "Professor":
-        st.sidebar.button("Meus Feedbacks", on_click=lambda: st.session_state.update({"page": "professor"}))
-    
-    if st.sidebar.button("Sair"):
-        st.session_state.clear()
-        st.rerun()
-
-# Controle de navegação
-if __name__ == "__main__":
-    if "logged_in" not in st.session_state:
-        st.session_state["logged_in"] = False
-
-    if "page" not in st.session_state:
-        st.session_state["page"] = "login"
-
-    if st.session_state["logged_in"]:
-        if st.session_state["page"] == "feedback" and st.session_state["tipo_usuario"] == "Aluno":
-            tela_feedback()
-        elif st.session_state["page"] == "professor" and st.session_state["tipo_usuario"] == "Professor":
-            tela_professor()
+                disciplina = st.text_input("📚 Disciplina")
         else:
-            tela_menu()
+            st.warning("⚠️ Nenhum professor cadastrado.")
+
     else:
-        tela_login()
+        st.error("❌ Erro: Tipo de usuário inválido.")
+
+    clareza = st.slider("📖 Clareza da explicação", 1, 5, 3)
+    material_apoio = st.slider("📂 Qualidade do material de apoio", 1, 5, 3)
+    participacao = st.slider("🎤 Possibilidade de participação", 1, 5, 3)
+    motivacao = st.radio("🔥 O professor motiva os alunos?", [1, 0], format_func=lambda x: "Sim" if x == 1 else "Não")
+    desafio = st.text_area("🚧 Desafios enfrentados")
+    comentarios = st.text_area("📝 Comentários adicionais")
+
+    if st.button("✅ Enviar Feedback"):
+        if disciplina and professor:
+            enviar_feedback(usuario_id, disciplina, professor, clareza, material_apoio, participacao, motivacao, desafio, comentarios)
+        else:
+            st.error("⚠️ Preencha todos os campos obrigatórios!")
+
+    # 🔴 Botão de Logout (agora dentro da função)
+    if st.button("🚪 Sair"):
+        st.session_state["logged_in"] = False
+        st.session_state.pop("usuario_id", None)
+        st.session_state.pop("nome_usuario", None)
+        st.session_state["page"] = "login"
+        st.rerun()  # Atualiza a página e volta para o login
+
 
 
